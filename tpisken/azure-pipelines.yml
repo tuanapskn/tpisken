@@ -1,0 +1,62 @@
+name: $(Date:yyyyMMdd)-$(Rev:r)
+
+trigger:
+- main
+- master
+
+variables:
+- name: application_name
+  value: 'staj-demo'
+- name: namespace
+  value: 'staj-demo'
+- name: IMAGETAG
+  value: 'harbordev.migrosnext.com'
+- name: version
+  value: '$(Build.BuildNumber)'
+
+stages:
+- stage: BuildAndPush
+  displayName: 'Build and Push Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build and Push Docker Images'
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: Docker@2
+      displayName: 'Build Backend Image'
+      inputs:
+        containerRegistry: 'Harbor-Dev'
+        repository: 'dev/staj-demo/backend'
+        command: 'buildAndPush'
+        dockerfile: 'backend/Dockerfile'
+        buildContext: 'backend'
+        tags: '$(Build.BuildNumber)'
+    
+    - task: Docker@2
+      displayName: 'Build Frontend Image'
+      inputs:
+        containerRegistry: 'Harbor-Dev'
+        repository: 'dev/staj-demo/frontend'
+        command: 'buildAndPush'
+        dockerfile: 'frontend/Dockerfile'
+        buildContext: 'frontend'
+        tags: '$(Build.BuildNumber)'
+    
+    - task: replacetokens@6
+      displayName: 'Replace Tokens in K8s Files'
+      inputs:
+        sources: '**/k8s-*-deployment.yaml'
+        variables: |
+          application_name: $(application_name)
+          namespace: $(namespace)
+          IMAGETAG: $(IMAGETAG)
+          version: $(version)
+    
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish K8s Manifests'
+      inputs:
+        PathtoPublish: '.'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'

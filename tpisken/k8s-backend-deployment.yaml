@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: staj-demo
+  labels:
+    app: staj-demo
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: staj-demo
+      tier: database
+      
+  template:
+    metadata:
+      labels:
+        app: staj-demo
+        tier: database
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpassword"
+            - name: MYSQL_DATABASE
+              value: "myapp"
+            - name: MYSQL_USER
+              value: "user"
+            - name: MYSQL_PASSWORD
+              value: "password"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: staj-demo
+  labels:
+    app: staj-demo
+spec:
+  selector:
+    app: staj-demo
+    tier: database
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: staj-demo
+  labels:
+    app: staj-demo
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: staj-demo
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: staj-demo
+        tier: backend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: backend
+          image: harbordev.migrosnext.com/dev/staj-demo/backend:20250805-9
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URL
+              value: "mysql://user:password@mysql-service:3306/myapp"
+            - name: DB_HOST
+              value: "mysql-service"
+            - name: DB_NAME
+              value: "myapp"
+            - name: DB_USER
+              value: "user"
+            - name: DB_PASSWORD
+              value: "password"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: staj-demo
+  labels:
+    app: staj-demo
+spec:
+  selector:
+    app: staj-demo
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: LoadBalancer

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: staj-demo
+  labels:
+    app: staj-demo
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: staj-demo
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: staj-demo
+        tier: frontend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: frontend
+          image: harbordev.migrosnext.com/dev/staj-demo/frontend:20250805-9
+          ports:
+            - containerPort: 80
+          env:
+            - name: BACKEND_URL
+              value: "http://backend-service:5000"
+            - name: API_BASE_URL
+              value: "http://backend-service:5000"
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "80"
+            - name: API_ENDPOINT
+              value: "backend-service"
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: staj-demo
+  labels:
+    app: staj-demo
+spec:
+  selector:
+    app: staj-demo
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 80
+  type: LoadBalancer

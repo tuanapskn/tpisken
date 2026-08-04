@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migros User Registration System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-animation" id="particles"></div>
+    
+    <div class="header">
+        <div class="logo-container">
+            <img src="migros.png" alt="Migros" class="logo">
+        </div>
+        <h1 class="main-title">MİGROS</h1>
+        
+        <div class="status-bar">
+            <span id="statusIndicator" class="status-indicator status-unhealthy"></span>
+            <span id="statusText">Checking connection...</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="messageArea"></div>
+        
+        <div class="form-section">
+            <h2 class="form-title">
+                <i class="fas fa-user-plus"></i>
+                Add New Customer
+            </h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="name">
+                        <i class="fas fa-user"></i>
+                        Full Name
+                    </label>
+                    <div class="input-container">
+                        <input type="text" id="name" placeholder="Enter customer's full name" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    <div class="input-container">
+                        <input type="email" id="email" placeholder="Enter email address" required>
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">
+                        <i class="fas fa-phone"></i>
+                        Phone Number (Optional)
+                    </label>
+                    <div class="input-container">
+                        <input type="tel" id="phone" placeholder="Enter phone number">
+                        <i class="fas fa-phone input-icon"></i>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn" class="submit-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Customer
+                </button>
+            </form>
+        </div>
+
+        <div class="user-list-section">
+            <h2 class="section-title">
+                <i class="fas fa-users"></i>
+                Registered Customers
+            </h2>
+            <div id="loading" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                Loading customers...
+            </div>
+            <div id="usersList"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
