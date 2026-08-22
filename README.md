@@ -1,44 +1,44 @@
 # Tpisken
 
-Bu proje Migros'ta DevOps stajyeri iken geliştirilmiş küçük bir örnek uygulamadır. Backend (Flask) ve frontend (statik HTML/JS) parçalarından oluşur; Docker, Docker Compose ve Kubernetes dağıtımı için örnek konfigürasyonları içerir.
+A containerized two-tier sample application built during my DevOps internship at Migros Ticaret A.Ş. (2025). The project covers the full container workflow end to end: local development with Docker Compose, image publishing to both Docker Hub and a private Harbor registry, Kubernetes deployment on Minikube, and a CI pipeline on Azure DevOps.
 
-## İçindekiler
+## Stack
 
-- Proje yapısı
-- Gereksinimler
-- Lokal çalıştırma (Docker Compose)
-- Docker görüntüleri ve Kubernetes
-- CI/CD (Azure Pipelines)
-- GitHub'a yükleme
+| Layer | Technology |
+|---|---|
+| Backend | Python / Flask |
+| Frontend | Static HTML, CSS, JavaScript |
+| Containerization | Docker, Docker Compose |
+| Registry | Docker Hub, Harbor (private) |
+| Orchestration | Kubernetes (Minikube) |
+| CI/CD | Azure DevOps Pipelines |
 
-## Proje yapısı
+## Repository structure
 
-- `backend/` — Flask uygulaması, `app.py`, `requirements.txt`, `Dockerfile`
-- `frontend/` — statik frontend dosyaları (`index.html`, `script.js`, `style.css`) ve `Dockerfile`
-- `docker-compose.yml` — lokal olarak backend+frontend çalıştırmak için
-- `k8s-backend-deployment.yaml`, `k8s-frontend-deployment.yaml` — örnek Kubernetes manifestleri
-- `azure-pipelines.yml` — örnek CI pipeline
+```
+backend/                        Flask application (app.py, requirements.txt, Dockerfile)
+frontend/                       Static frontend (index.html, script.js, style.css, Dockerfile)
+docker-compose.yml              Local multi-service setup
+k8s-backend-deployment.yaml     Kubernetes Deployment + Service for the backend
+k8s-frontend-deployment.yaml    Kubernetes Deployment + Service for the frontend
+azure-pipelines.yml             CI pipeline definition
+```
 
-## Gereksinimler
+## Requirements
 
-- Docker
-- Docker Compose
-- Python 3.8+ (yalnızca backend'i doğrudan çalıştırmak isterseniz)
-- (Kubernetes için) `kubectl` ve bir k8s kümesi (minikube, kind veya uzak küme)
+- Docker and Docker Compose
+- Python 3.8+ (only if running the backend outside a container)
+- `kubectl` and a Kubernetes cluster (Minikube, kind, or remote) for the deployment step
 
-## Lokal olarak çalıştırma (Docker Compose)
-
-En kolay yol Docker Compose ile çalıştırmaktır:
+## Running locally
 
 ```bash
 docker-compose up --build
 ```
 
-Bu komut backend ve frontend servislerini oluşturup başlatacaktır. Tarayıcıdan http://localhost:5000 veya kompozisyona göre belirlenmiş portu kontrol edin.
+The backend serves on port `5000`. Check `docker-compose.yml` for the frontend port mapping.
 
-## Backend'i doğrudan çalıştırma
-
-1. Sanal ortam oluşturun ve aktivite edin:
+To run the backend directly, without Docker:
 
 ```bash
 cd backend
@@ -48,54 +48,37 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Uygulama varsayılan olarak `5000` portunda çalışacaktır.
-
-## Docker görüntüleri
-
-Elle görüntü oluşturup test etmek isterseniz:
+## Building and publishing images
 
 ```bash
-docker build -t yourname/tpisken-backend:latest ./backend
-docker build -t yourname/tpisken-frontend:latest ./frontend
+docker build -t tpisken-backend:latest ./backend
+docker build -t tpisken-frontend:latest ./frontend
 ```
 
-Görüntüleri bir container registry'ye (Docker Hub, ACR, ECR vb.) itebilirsiniz.
+Images were tagged and pushed to two registries during development — Docker Hub for public access and a self-hosted Harbor instance for centralized, access-controlled image management:
 
-## Kubernetes ile dağıtım
+```bash
+# Harbor (private registry)
+docker tag tpisken-backend:latest <harbor-host>/<project>/tpisken-backend:latest
+docker push <harbor-host>/<project>/tpisken-backend:latest
+```
 
-Hazır manifestler mevcut. Kendi registry ayarlarınızı ve image isimlerinizi güncelleyin, sonra uygulayın:
+## Deploying to Kubernetes
+
+The manifests define a Deployment and a Service for each tier. Update the `image:` fields to point at your own registry, then apply:
 
 ```bash
 kubectl apply -f k8s-backend-deployment.yaml
 kubectl apply -f k8s-frontend-deployment.yaml
+kubectl get pods
 ```
 
-Servis ve Ingress yapılandırmanızı küme ortamınıza göre uyarlayın.
+Deployments handle replica count and rolling pod replacement; Services provide load balancing across pods and expose the application outside the cluster. Tested on Minikube.
 
-## CI/CD
+## CI pipeline
 
-Bu repo `azure-pipelines.yml` içermektedir; Azure DevOps ile pipeline kurulumuna örnek teşkil eder. Pipeline içinde image build, test ve registry'ye push adımlarını ekleyebilirsiniz.
+`azure-pipelines.yml` defines the build pipeline used on Azure DevOps. It was configured, run, and debugged through the pipeline logs until it completed successfully. A separate `docker-compose.public.yml` was used to define how services behave outside the local environment.
 
-## GitHub'a yükleme
+## Author
 
-Yerel repoyu GitHub'a göndermek için örnek adımlar:
-
-```bash
-git init
-git add .
-git commit -m "İlk commit: Tpisken proje dosyaları"
-# GitHub'da yeni bir repo oluşturduktan sonra uzak adresi ekleyin:
-git remote add origin https://github.com/USERNAME/REPO_NAME.git
-git branch -M main
-git push -u origin main
-```
-
-`USERNAME` ve `REPO_NAME` alanlarını kendi hesabınıza göre güncelleyin.
-
-## Lisans
-
-Bu projeyi paylaşırken `MIT` lisansını kullanabilirsiniz — isterseniz lisans dosyası ekleyin veya farklı bir lisans seçin.
-
-## İletişim
-
-Projeyle ilgili sorular için lütfen README içindeki bilgileri veya doğrudan proje sahibine başvurun (ilgili e-posta/isim bilgilerini buraya ekleyin).
+Tuana Pişken — [github.com/tuanapskn](https://github.com/tuanapskn)
