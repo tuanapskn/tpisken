@@ -81,9 +81,5 @@ Deployments handle replica count and rolling pod replacement; Services provide l
 
 ## Author
 
-
-
 Tuana Pişken — [github.com/tuanapskn](https://github.com/tuanapskn)
-
-
 
