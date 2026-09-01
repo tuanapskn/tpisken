@@ -78,6 +78,10 @@ Deployments handle replica count and rolling pod replacement; Services provide l
 
 
 
+
+
+
+
 ## CI pipeline
 
 `azure-pipelines.yml` defines the build pipeline used on Azure DevOps. It was configured, run, and debugged through the pipeline logs until it completed successfully. A separate `docker-compose.public.yml` was used to define how services behave outside the local environment.
