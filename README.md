@@ -2,6 +2,8 @@
 
 A containerized two-tier sample application built during my DevOps internship at Migros Ticaret A.Ş. (2025). The project covers the full container workflow end to end: local development with Docker Compose, image publishing to both Docker Hub and a private Harbor registry, Kubernetes deployment on Minikube, and a CI pipeline on Azure DevOps.
 
+
+
 ## Stack
 
 | Layer | Technology |
