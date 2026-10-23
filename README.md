@@ -75,6 +75,8 @@ kubectl apply -f k8s-frontend-deployment.yaml
 kubectl get pods
 
 
+
+
 ```
 
 Deployments handle replica count and rolling pod replacement; Services provide load balancing across pods and expose the application outside the cluster. Tested on Minikube.
